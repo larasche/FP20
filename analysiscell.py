@@ -15,6 +15,10 @@ import os
 filenames = os.listdir('Daten')
 
 
+# reads the differential cross section for NO_2
+
+NO2cross = np.loadtxt("Daten/NO2_DiffXSection.dat", skiprows=6)
+
 # reads the dark measurement in an array
 idark200 = np.loadtxt("Daten/abgedunkelt_200ms.DAT", skiprows=17)
 idark300 = np.loadtxt("Daten/abgedunkelt_300ms.DAT", skiprows=17)
@@ -119,42 +123,113 @@ wavemax = abs(wavelenscale - 465).argmin()
 wavelen = wavelenscale[wavemin: wavemax]
 
 # apply the fitting window to the measurements
+#i_ready = {}
+#i0_ready = {}
+#for key in i_darkcorrected:
+ #   for nn in range(0, 60):
+  #      if key == "mit_Zelle_200ms_" + str(nn):
+   #         name = "mit_Zelle_200ms_" + str(nn)
+   #         i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+    #    if key == "mit_Zelle_300ms_" + str(nn):
+    #        name = "mit_Zelle_300ms_" + str(nn)
+    #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+    #    if key == "mit_Zelle_350ms_" + str(nn):
+    #        name = "mit_Zelle_350ms_" + str(nn)
+            i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+     ##   if key == "mit_Zelle_400ms_" + str(nn):
+     #       name = "mit_Zelle_400ms_" + str(nn)
+    #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+    #    if key == "mit_Zelle_500ms_" + str(nn):
+#            name = "mit_Zelle_500ms_" + str(nn)
+#            i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+#for key in i0_darkcorrected:
+ #   for nn in range(0, 60):
+   #     if key == "ohne_Zelle_200ms_" + str(nn):
+  #          name = "ohne_Zelle_200ms_" + str(nn)
+     #       i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
+    #    if key == "ohne_Zelle_300ms_" + str(nn):
+ #           name = "ohne_Zelle_300ms_" + str(nn)
+  #          i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
+ #       if key == "ohne_Zelle_350ms_" + str(nn):
+ #           name = "ohne_Zelle_350ms_" + str(nn)
+ #           i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
+ #       if key == "ohne_Zelle_400ms_" + str(nn):
+ #           name = "ohne_Zelle_400ms_" + str(nn)
+#            i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
+#        if key == "ohne_Zelle_500ms_" + str(nn):
+ #           name = "ohne_Zelle_500ms_" + str(nn)
+ #           i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
+
+
+# calculate log(I0_ready/I_ready)
+
+# i_log = {}
+
+# alternative (without the string like "ohne_Zelle_200ms_")
 i_ready = {}
 i0_ready = {}
 for key in i_darkcorrected:
     for nn in range(0, 60):
         if key == "mit_Zelle_200ms_" + str(nn):
-            name = "mit_Zelle_200ms_" + str(nn)
+            name = str(nn)
             i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
         if key == "mit_Zelle_300ms_" + str(nn):
-            name = "mit_Zelle_300ms_" + str(nn)
+            name = str(nn)
             i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
         if key == "mit_Zelle_350ms_" + str(nn):
-            name = "mit_Zelle_350ms_" + str(nn)
+            name = str(nn)
             i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
         if key == "mit_Zelle_400ms_" + str(nn):
-            name = "mit_Zelle_400ms_" + str(nn)
+            name = str(nn)
             i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
         if key == "mit_Zelle_500ms_" + str(nn):
-            name = "mit_Zelle_500ms_" + str(nn)
+            name = str(nn)
             i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
 for key in i0_darkcorrected:
     for nn in range(0, 60):
         if key == "ohne_Zelle_200ms_" + str(nn):
-            name = "ohne_Zelle_200ms_" + str(nn)
+            name = str(nn)
             i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
         if key == "ohne_Zelle_300ms_" + str(nn):
-            name = "ohne_Zelle_300ms_" + str(nn)
+            name = str(nn)
             i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
         if key == "ohne_Zelle_350ms_" + str(nn):
-            name = "ohne_Zelle_350ms_" + str(nn)
+            name = str(nn)
             i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
         if key == "ohne_Zelle_400ms_" + str(nn):
-            name = "ohne_Zelle_400ms_" + str(nn)
+            name = str(nn)
             i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
         if key == "ohne_Zelle_500ms_" + str(nn):
-            name = "ohne_Zelle_500ms_" + str(nn)
+            name = str(nn)
             i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
 
 
-# calculate ln(I0/I)
+# calculate log(I0_ready/I_ready)
+
+i_log = {}
+
+for key in i_ready:
+    for key2 in i0_ready:
+        if key == key2:
+            i_log[key] = np.log(i0_ready[key]/i_ready[key2])
+
+
+# fit a polynomial of order 3 to i_log
+def polynom3(a0, a1, a2, a3, x):
+    """"calculates the polynom of order 3"""
+    aa = a0*x**3 + a1*x**2 + a2*x + a3
+    return aa
+
+poly = {}
+for key in i_log:
+    fitparas = np.polyfit(wavelen, i_log[key], 3)
+    poly[key] = polynom3(fitparas[0], fitparas[1], fitparas[2], fitparas[3], wavelen)
+
+
+# substract the fitted polynomial from i_log to get the differential i_logdiff
+
+i_logdiff ={}
+for key in i_log:
+    for key2 in poly:
+        if key == key2:
+            i_logdiff[key] = i_log[key] - poly[key2]
