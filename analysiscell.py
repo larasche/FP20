@@ -15,9 +15,20 @@ import os
 filenames = os.listdir('Daten')
 
 
+def time(filename):
+    f = open(filename, "r")
+    time = f.readlines()[1]  # time is stored in row 2
+    ntime = time.split(" ")
+    mtime = ntime[3].split(":")
+    # seconds since midnight (00:00:00:00)
+    sectime = 3600*int(mtime[0]) + 60*int(mtime[1] + int(mtime[2]))
+    f.close()
+    return sectime
+
 # reads the differential cross section for NO_2
 
 NO2cross = np.loadtxt("Daten/NO2_DiffXSection.dat", skiprows=6)
+
 
 # reads the dark measurement in an array
 idark200 = np.loadtxt("Daten/abgedunkelt_200ms.DAT", skiprows=17)
