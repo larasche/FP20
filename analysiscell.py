@@ -11,20 +11,6 @@ import os.path
 import os
 
 
-# sort the data by time
-filenames = os.listdir('Daten')
-
-
-def time(filename):
-    f = open(filename, "r")
-    time = f.readlines()[1]  # time is stored in row 2
-    ntime = time.split(" ")
-    mtime = ntime[3].split(":")
-    # seconds since midnight (00:00:00:00)
-    sectime = 3600*int(mtime[0]) + 60*int(mtime[1] + int(mtime[2]))
-    f.close()
-    return sectime
-
 # reads the differential cross section for NO_2
 
 NO2cross = np.loadtxt("Daten/NO2_DiffXSection.dat", skiprows=6)
@@ -146,7 +132,7 @@ wavelen = wavelenscale[wavemin: wavemax]
     #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
     #    if key == "mit_Zelle_350ms_" + str(nn):
     #        name = "mit_Zelle_350ms_" + str(nn)
-            i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
+     #       i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
      ##   if key == "mit_Zelle_400ms_" + str(nn):
      #       name = "mit_Zelle_400ms_" + str(nn)
     #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
@@ -231,6 +217,7 @@ def polynom3(a0, a1, a2, a3, x):
     aa = a0*x**3 + a1*x**2 + a2*x + a3
     return aa
 
+
 poly = {}
 for key in i_log:
     fitparas = np.polyfit(wavelen, i_log[key], 3)
@@ -239,8 +226,29 @@ for key in i_log:
 
 # substract the fitted polynomial from i_log to get the differential i_logdiff
 
-i_logdiff ={}
+i_logdiff = {}
 for key in i_log:
     for key2 in poly:
         if key == key2:
             i_logdiff[key] = i_log[key] - poly[key2]
+
+
+# sort the data by time
+filenames = os.listdir('Daten')
+
+
+def time(filename):
+    f = open(filename, "r")
+    time = f.readlines()[1]  # time is stored in row 2
+    ntime = time.split(" ")
+    mtime = ntime[3].split(":")
+    # seconds since midnight (00:00:00:00)
+    sectime = 3600*int(mtime[0]) + 60*int(mtime[1]) + int(mtime[2])
+    f.close()
+    return sectime
+
+
+test = time("Daten/mit_Zelle_200ms_56.DAT")
+
+
+# interpolate the differential cross section to the measurements cross section
