@@ -9,6 +9,9 @@ Created on Thu Feb  4 09:42:36 2021
 import numpy as np
 import os.path
 import os
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+import numpy.linalg as nl
 
 
 # reads the differential cross section for NO_2
@@ -238,11 +241,17 @@ filenames = os.listdir('Daten')
 
 
 def time(filename):
+    """Calculates the passed time since midnight (00:00:00)
+    Args:
+        filename: path to the file as string
+
+    Returns:
+        sectime: seconds since midnight
+    """
     f = open(filename, "r")
     time = f.readlines()[1]  # time is stored in row 2
     ntime = time.split(" ")
     mtime = ntime[3].split(":")
-    # seconds since midnight (00:00:00:00)
     sectime = 3600*int(mtime[0]) + 60*int(mtime[1]) + int(mtime[2])
     f.close()
     return sectime
@@ -251,4 +260,39 @@ def time(filename):
 test = time("Daten/mit_Zelle_200ms_56.DAT")
 
 
-# interpolate the differential cross section to the measurements cross section
+# interpolate the differential cross section to the measurement wavelengths
+waveair = NO2cross[:, 0]
+diffNO2 = NO2cross[:, 1]
+intercross = interp1d(waveair, diffNO2) # interpolates the FUNKTION intercross
+
+# fit the cross section to mesurement wavelength (wavelen)
+
+finalcross = intercross(wavelen)# finalcross = cross section for the right wavelength
+
+# finalOP_W = np.array([i_logdiff["1"], wavelen])
+
+#####
+idiffnew = np.reshape(i_logdiff["1"], (-1, 367)) # transpose the vector
+
+# new try
+
+
+
+test = nl.lstsq(idiffnew, finalcross) # fits the cross section to the optical depth
+
+
+
+
+# plot plot plot :)
+
+plt.plot(waveair, intercross(waveair), "-")
+plt.show()
+
+data = i_logdiff["1"]
+
+
+
+
+plt.plot(waveair, intercross(waveair), "-")
+plt.plot(wavelen, test, "-", color="green")
+plt.show
