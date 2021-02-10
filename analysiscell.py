@@ -122,49 +122,8 @@ wavemin = abs(wavelenscale - 432.5).argmin()
 wavemax = abs(wavelenscale - 465).argmin()
 wavelen = wavelenscale[wavemin: wavemax]
 
-# apply the fitting window to the measurements
-#i_ready = {}
-#i0_ready = {}
-#for key in i_darkcorrected:
- #   for nn in range(0, 60):
-  #      if key == "mit_Zelle_200ms_" + str(nn):
-   #         name = "mit_Zelle_200ms_" + str(nn)
-   #         i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
-    #    if key == "mit_Zelle_300ms_" + str(nn):
-    #        name = "mit_Zelle_300ms_" + str(nn)
-    #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
-    #    if key == "mit_Zelle_350ms_" + str(nn):
-    #        name = "mit_Zelle_350ms_" + str(nn)
-     #       i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
-     ##   if key == "mit_Zelle_400ms_" + str(nn):
-     #       name = "mit_Zelle_400ms_" + str(nn)
-    #        i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
-    #    if key == "mit_Zelle_500ms_" + str(nn):
-#            name = "mit_Zelle_500ms_" + str(nn)
-#            i_ready[name] = i_darkcorrected[key][wavemin: wavemax]
-#for key in i0_darkcorrected:
- #   for nn in range(0, 60):
-   #     if key == "ohne_Zelle_200ms_" + str(nn):
-  #          name = "ohne_Zelle_200ms_" + str(nn)
-     #       i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
-    #    if key == "ohne_Zelle_300ms_" + str(nn):
- #           name = "ohne_Zelle_300ms_" + str(nn)
-  #          i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
- #       if key == "ohne_Zelle_350ms_" + str(nn):
- #           name = "ohne_Zelle_350ms_" + str(nn)
- #           i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
- #       if key == "ohne_Zelle_400ms_" + str(nn):
- #           name = "ohne_Zelle_400ms_" + str(nn)
-#            i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
-#        if key == "ohne_Zelle_500ms_" + str(nn):
- #           name = "ohne_Zelle_500ms_" + str(nn)
- #           i0_ready[name] = i0_darkcorrected[key][wavemin: wavemax]
 
-
-# calculate log(I0_ready/I_ready)
-
-# i_log = {}
-
+# aplly the fitting window to the measurements
 # alternative (without the string like "ohne_Zelle_200ms_")
 i_ready = {}
 i0_ready = {}
@@ -236,7 +195,122 @@ for key in i_log:
             i_logdiff[key] = i_log[key] - poly[key2]
 
 
-# sort the data by time
+# interpolate the differential cross section to the measurement wavelengths
+waveair = NO2cross[:, 0]
+diffNO2 = NO2cross[:, 1]
+intercross = interp1d(waveair, diffNO2)  # interpolates the FUNKTION intercross
+
+# fit the cross section to mesurement wavelength (wavelen)
+
+finalcross = intercross(wavelen)  # finalcross = cross section for the right wavelength
+
+nfinalcross = np.reshape(finalcross, (367, 1))
+# finalOP_W = np.array([i_logdiff["1"], wavelen])
+
+#####
+
+# transpose the vector
+
+idiffnew = {}
+for key in i_logdiff:
+    for nn in range(0, 60):
+        if key == str(nn):
+            idiffnew[key] = np.reshape(i_logdiff[key], (-1, 367))
+
+
+# ################################################(below is false)#####
+
+
+# plot plot plot :)
+
+
+plt.plot(wavelen, i_logdiff["5"], "-", color="red")
+plt.plot(wavelen, lsfinalcross, ".",color="blue")
+plt.show
+
+###
+plt.plot(waveair, intercross(waveair), ".")
+plt.plot(wavelen, Ax["5"], "-", color="red")
+plt.show
+
+
+####
+plt.plot(waveair, intercross(waveair), "-")
+plt.show()
+
+data = i_logdiff["1"]
+
+
+plt.plot(waveair, intercross(waveair), ".")
+plt.plot(wavelen, new, "-", color="red")
+plt.show
+
+##############################################################################
+fit_SC = {}
+for key in idiffnew:
+    for nn in range(0,60):
+        if key == str(nn):
+            fit_SC[key] = nl.lstsq(finalcross, idiffnew[key])
+
+test = nl.lstsq(finalcross, idiffnew["5"])
+
+
+cross_SC = {}
+for key in fit_cossOD:
+    for nn in range(0, 60):
+        if key == str(nn):
+            cross_SC[key] = np.dot(finalcross, fit_SC[key][0])
+
+lsfinalcross = np.dot(finalcross, test[0])
+
+
+wavelennew = np.reshape(wavelen, (-1, 367))
+
+plt.plot(wavelen, i_logdiff["5"], "-", color="red")
+plt.plot(wavelennew, cross_SC["5"], ".", color="blue")
+plt.show
+
+# plot plot plot :)
+
+
+plt.plot(wavelen, i_logdiff["5"], "-", color="red")
+plt.plot(wavelennew, lsfinalcross, ".", color="blue")
+plt.show
+
+
+# ##########################(this is possible right)#####################
+
+# also a new try because i'm stupid (row, column)
+
+idiffnew["5"] = np.reshape(i_logdiff["5"], (367, -1))
+
+idiffnew = {}
+for key in i_logdiff:
+    for nn in range(0, 60):
+        if key == str(nn):
+            idiffnew[key] = np.reshape(i_logdiff[key], (367, -1))
+
+test = nl.lstsq(nfinalcross, idiffnew["5"])
+
+fit_SC = {}
+for key in idiffnew:
+    for nn in range(0, 60):
+        if key == str(nn):
+            fit_SC[key] = nl.lstsq(nfinalcross, idiffnew[key])
+
+
+# plot plot plot :)
+
+plt.plot(wavelen, i_logdiff["5"], "-", color="red")
+plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, ".", color="blue")
+plt.show
+
+
+# calculate the concentration of NO2 in the cell
+
+
+
+# reads the time
 filenames = os.listdir('Daten')
 
 
@@ -248,7 +322,7 @@ def time(filename):
     Returns:
         sectime: seconds since midnight
     """
-    f = open(filename, "r")
+    f = open("Daten/"+filename, "r")
     time = f.readlines()[1]  # time is stored in row 2
     ntime = time.split(" ")
     mtime = ntime[3].split(":")
@@ -257,42 +331,20 @@ def time(filename):
     return sectime
 
 
-test = time("Daten/mit_Zelle_200ms_56.DAT")
+# start time in seconds since midnigth
+stat_t = time("Daten/mit_Zelle_500ms_1.DAT")
 
-
-# interpolate the differential cross section to the measurement wavelengths
-waveair = NO2cross[:, 0]
-diffNO2 = NO2cross[:, 1]
-intercross = interp1d(waveair, diffNO2) # interpolates the FUNKTION intercross
-
-# fit the cross section to mesurement wavelength (wavelen)
-
-finalcross = intercross(wavelen)# finalcross = cross section for the right wavelength
-
-# finalOP_W = np.array([i_logdiff["1"], wavelen])
-
-#####
-idiffnew = np.reshape(i_logdiff["1"], (-1, 367)) # transpose the vector
-
-# new try
-
-
-
-test = nl.lstsq(idiffnew, finalcross) # fits the cross section to the optical depth
-
-
-
-
-# plot plot plot :)
-
-plt.plot(waveair, intercross(waveair), "-")
-plt.show()
-
-data = i_logdiff["1"]
-
-
-
-
-plt.plot(waveair, intercross(waveair), "-")
-plt.plot(wavelen, test, "-", color="green")
-plt.show
+# time since the first measurement
+seconds_since_start = {}
+for ii in filenames:
+    for nn in range(1, 60):
+        if ii == "mit_Zelle_200ms_"+str(nn)+".DAT":
+            seconds_since_start[str(nn)] = time(ii) - stat_t
+        if ii == "mit_Zelle_300ms_"+str(nn)+".DAT":
+            seconds_since_start[str(nn)] = time(ii) - stat_t
+        if ii == "mit_Zelle_350ms_"+str(nn)+".DAT":
+            seconds_since_start[str(nn)] = time(ii) - stat_t
+        if ii == "mit_Zelle_400ms_"+str(nn)+".DAT":
+            seconds_since_start[str(nn)] = time(ii) - stat_t
+        if ii == "mit_Zelle_500ms_"+str(nn)+".DAT":
+            seconds_since_start[str(nn)] = time(ii) - stat_t
