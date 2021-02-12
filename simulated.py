@@ -89,11 +89,14 @@ for key in nfinalcross:
 plt.plot(wavelen, i_logdiff, "-", color="red")
 plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], ".", color="blue")
 plt.show
+print("Error fit O3:", fit_SC["O3"][1])
 
 plt.plot(wavelen, i_logdiff, "-", color="red")
 plt.plot(wavelen, fit_SC["BrO"][0]*nfinalcross["BrO"], ".", color="blue")
 plt.show
+print("Error fit BrO:", fit_SC["BrO"][1])
 
 plt.plot(wavelen, i_logdiff, "-", color="red")
 plt.plot(wavelen, fit_SC["HCHO"][0]*nfinalcross["HCHO"], ".", color="blue")
 plt.show
+print("Error fit HCHO:", fit_SC["HCHO"][1])
