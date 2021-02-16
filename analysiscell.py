@@ -205,84 +205,11 @@ intercross = interp1d(waveair, diffNO2)  # interpolates the FUNKTION intercross
 finalcross = intercross(wavelen)  # finalcross = cross section for the right wavelength
 
 nfinalcross = np.reshape(finalcross, (367, 1))
-# finalOP_W = np.array([i_logdiff["1"], wavelen])
-
-#####
-
-# transpose the vector
-
-idiffnew = {}
-for key in i_logdiff:
-    for nn in range(0, 60):
-        if key == str(nn):
-            idiffnew[key] = np.reshape(i_logdiff[key], (-1, 367))
-
-
-# ################################################(below is false)#####
-
-
-# plot plot plot :)
-
-
-plt.plot(wavelen, i_logdiff["5"], "-", color="red")
-plt.plot(wavelen, lsfinalcross, ".",color="blue")
-plt.show
-
-###
-plt.plot(waveair, intercross(waveair), ".")
-plt.plot(wavelen, Ax["5"], "-", color="red")
-plt.show
-
-
-####
-plt.plot(waveair, intercross(waveair), "-")
-plt.show()
-
-data = i_logdiff["1"]
-
-
-plt.plot(waveair, intercross(waveair), ".")
-plt.plot(wavelen, new, "-", color="red")
-plt.show
-
-##############################################################################
-fit_SC = {}
-for key in idiffnew:
-    for nn in range(0,60):
-        if key == str(nn):
-            fit_SC[key] = nl.lstsq(finalcross, idiffnew[key])
-
-test = nl.lstsq(finalcross, idiffnew["5"])
-
-
-cross_SC = {}
-for key in fit_cossOD:
-    for nn in range(0, 60):
-        if key == str(nn):
-            cross_SC[key] = np.dot(finalcross, fit_SC[key][0])
-
-lsfinalcross = np.dot(finalcross, test[0])
-
-
-wavelennew = np.reshape(wavelen, (-1, 367))
-
-plt.plot(wavelen, i_logdiff["5"], "-", color="red")
-plt.plot(wavelennew, cross_SC["5"], ".", color="blue")
-plt.show
-
-# plot plot plot :)
-
-
-plt.plot(wavelen, i_logdiff["5"], "-", color="red")
-plt.plot(wavelennew, lsfinalcross, ".", color="blue")
-plt.show
 
 
 # ##########################(this is possible right)#####################
 
 # also a new try because i'm stupid (row, column)
-
-idiffnew["5"] = np.reshape(i_logdiff["5"], (367, -1))
 
 idiffnew = {}
 for key in i_logdiff:
@@ -301,13 +228,18 @@ for key in idiffnew:
 
 # plot plot plot :)
 
-plt.plot(wavelen, i_logdiff["5"], "-", color="red")
-plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, ".", color="blue")
+plt.plot(wavelen, i_logdiff["5"], "-", color="red",
+         label="measurement")
+plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, "-", color="blue",
+         label="scaled NO2 reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
+plt.title("time since start: ")
 plt.show
 
 
 # calculate the concentration of NO2 in the cell
-
 
 
 # reads the time
@@ -332,19 +264,30 @@ def time(filename):
 
 
 # start time in seconds since midnigth
-stat_t = time("Daten/mit_Zelle_500ms_1.DAT")
+stat_t = time("mit_Zelle_500ms_1.DAT")
 
 # time since the first measurement
 seconds_since_start = {}
 for ii in filenames:
     for nn in range(1, 60):
         if ii == "mit_Zelle_200ms_"+str(nn)+".DAT":
-            seconds_since_start[str(nn)] = time(ii) - stat_t
+            seconds_since_start[nn] = time(ii) - stat_t
         if ii == "mit_Zelle_300ms_"+str(nn)+".DAT":
-            seconds_since_start[str(nn)] = time(ii) - stat_t
+            seconds_since_start[nn] = time(ii) - stat_t
         if ii == "mit_Zelle_350ms_"+str(nn)+".DAT":
-            seconds_since_start[str(nn)] = time(ii) - stat_t
+            seconds_since_start[nn] = time(ii) - stat_t
         if ii == "mit_Zelle_400ms_"+str(nn)+".DAT":
-            seconds_since_start[str(nn)] = time(ii) - stat_t
+            seconds_since_start[nn] = time(ii) - stat_t
         if ii == "mit_Zelle_500ms_"+str(nn)+".DAT":
-            seconds_since_start[str(nn)] = time(ii) - stat_t
+            seconds_since_start[nn] = time(ii) - stat_t
+
+SClist = []
+timelist = []
+for key in seconds_since_start:
+    for key2 in fit_SC:
+        if str(key) == key2:
+            timelist.append(seconds_since_start[key])
+            SClist.append(float(fit_SC[key2][0]))
+
+plt.plot(timelist, SClist, ".")
+plt.show()
