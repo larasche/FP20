@@ -22,10 +22,14 @@ refcross["O3"] = np.loadtxt("Daten/O3_DIFFXSECTION.DAT", skiprows=6)
 refcross["BrO"] = np.loadtxt("Daten/BRO_DIFFXSECTION.DAT", skiprows=6)
 refcross["HCHO"] = np.loadtxt("Daten/HCHO_DIFFXSECTION.DAT", skiprows=6)
 
-#read the simulated data at different angels (80° as i0 and 20° as i)
+# read the simulated data at different angels (80° as i0 and 20° as i)
 
 i_20 = np.loadtxt("Daten/TG_A_DATA_20.DAT", skiprows=6)
 i_80 = np.loadtxt("Daten/TG_A_DATA_80.DAT", skiprows=6)
+
+# read the airmassfacors
+
+AMFO3 = np.loadtxt("Daten/O3_AMF.dat", skiprows=7)
 
 
 # this data must not be dark corrected
@@ -86,17 +90,49 @@ fit_SC = {}
 for key in nfinalcross:
     fit_SC[key] = nl.lstsq(nfinalcross[key], idiffnew)
 
-plt.plot(wavelen, i_logdiff, "-", color="red")
-plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], ".", color="blue")
+plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
+plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], ".", color="blue",
+         label="scaled O3 reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
+plt.title("With a  reference cross section from O3")
 plt.show
+plt.savefig("O3fit.pdf")
 print("Error fit O3:", fit_SC["O3"][1])
 
-plt.plot(wavelen, i_logdiff, "-", color="red")
-plt.plot(wavelen, fit_SC["BrO"][0]*nfinalcross["BrO"], ".", color="blue")
+plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
+plt.plot(wavelen, fit_SC["BrO"][0]*nfinalcross["BrO"], ".", color="blue",
+         label="scaled BrO reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
 plt.show
+plt.savefig("BrOfit.pdf")
 print("Error fit BrO:", fit_SC["BrO"][1])
 
-plt.plot(wavelen, i_logdiff, "-", color="red")
-plt.plot(wavelen, fit_SC["HCHO"][0]*nfinalcross["HCHO"], ".", color="blue")
+plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
+plt.plot(wavelen, fit_SC["HCHO"][0]*nfinalcross["HCHO"], ".", color="blue",
+         label="scaled HCHO reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
 plt.show
+plt.savefig("HCHOfit.pdf")
 print("Error fit HCHO:", fit_SC["HCHO"][1])
+
+
+# calculate the vertical column
+SC = float(fit_SC["O3"][0])
+
+# calculate the difference between the AMF at 20 and 80 degree:
+
+deltaAMF = AMFO3[0,1] - AMFO3[6,1]
+
+VC = SC/deltaAMF
+
+# verical column (VC) in dobson units (VCinDU)
+
+DU = 2.69*10**16
+
+VCinDU = VC/DU
