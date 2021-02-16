@@ -169,3 +169,52 @@ for key in idiffnew:
 plt.plot(wavelen, i_logdiff["5"], "-", color="red")
 plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, ".", color="blue")
 plt.show
+
+# reads the time
+filenames = os.listdir('Daten')
+
+
+def time(filename):
+    """Calculates the passed time since midnight (00:00:00)
+    Args:
+        filename: path to the file as string
+
+    Returns:
+        sectime: seconds since midnight
+    """
+    f = open("Daten/"+filename, "r")
+    time = f.readlines()[1]  # time is stored in row 2
+    ntime = time.split(" ")
+    mtime = ntime[3].split(":")
+    sectime = 3600*int(mtime[0]) + 60*int(mtime[1]) + int(mtime[2])
+    f.close()
+    return sectime
+
+# start time in seconds since midnigth
+stat_t = time("mit_Zelle_500ms_1.DAT")
+
+# time since the first measurement
+seconds_since_start = {}
+for ii in filenames:
+    for nn in range(1, 60):
+        if ii == "ohne_Zelle_200ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "ohne_Zelle_300ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "ohne_Zelle_350ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "ohne_Zelle_400ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "ohne_Zelle_500ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+
+SClist = []
+timelist = []
+for key in seconds_since_start:
+    for key2 in fit_SC:
+        if str(key) == key2:
+            timelist.append(seconds_since_start[key])
+            SClist.append(float(fit_SC[key2][0]))
+
+plt.plot(timelist, SClist, ".")
+plt.show()
