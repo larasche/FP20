@@ -91,7 +91,7 @@ for key in nfinalcross:
     fit_SC[key] = nl.lstsq(nfinalcross[key], idiffnew)
 
 plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
-plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], ".", color="blue",
+plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], "-", color="blue",
          label="scaled O3 reference")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("differential optical depth")
@@ -102,7 +102,7 @@ plt.savefig("O3fit.pdf")
 print("Error fit O3:", fit_SC["O3"][1])
 
 plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
-plt.plot(wavelen, fit_SC["BrO"][0]*nfinalcross["BrO"], ".", color="blue",
+plt.plot(wavelen, fit_SC["BrO"][0]*nfinalcross["BrO"], "-", color="blue",
          label="scaled BrO reference")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("differential optical depth")
@@ -112,7 +112,7 @@ plt.savefig("BrOfit.pdf")
 print("Error fit BrO:", fit_SC["BrO"][1])
 
 plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
-plt.plot(wavelen, fit_SC["HCHO"][0]*nfinalcross["HCHO"], ".", color="blue",
+plt.plot(wavelen, fit_SC["HCHO"][0]*nfinalcross["HCHO"], "-", color="blue",
          label="scaled HCHO reference")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("differential optical depth")
@@ -127,7 +127,7 @@ SC = float(fit_SC["O3"][0])
 
 # calculate the difference between the AMF at 20 and 80 degree:
 
-deltaAMF = AMFO3[0,1] - AMFO3[6,1]
+deltaAMF = AMFO3[0, 1] - AMFO3[6, 1]
 
 VC = SC/deltaAMF
 

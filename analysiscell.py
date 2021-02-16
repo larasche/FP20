@@ -26,6 +26,46 @@ idark350 = np.loadtxt("Daten/abgedunkelt_350ms.DAT", skiprows=17)
 idark400 = np.loadtxt("Daten/abgedunkelt_400ms.DAT", skiprows=17)
 idark500 = np.loadtxt("Daten/abgedunkelt_500ms.DAT", skiprows=17)
 
+
+# reads the time
+filenames = os.listdir('Daten')
+
+
+def time(filename):
+    """Calculates the passed time since midnight (00:00:00)
+    Args:
+        filename: path to the file as string
+
+    Returns:
+        sectime: seconds since midnight
+    """
+    f = open("Daten/"+filename, "r")
+    time = f.readlines()[1]  # time is stored in row 2
+    ntime = time.split(" ")
+    mtime = ntime[3].split(":")
+    sectime = 3600*int(mtime[0]) + 60*int(mtime[1]) + int(mtime[2])
+    f.close()
+    return sectime
+
+
+# start time in seconds since midnigth
+stat_t = time("mit_Zelle_500ms_1.DAT")
+
+# time since the first measurement
+seconds_since_start = {}
+for ii in filenames:
+    for nn in range(1, 60):
+        if ii == "mit_Zelle_200ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "mit_Zelle_300ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "mit_Zelle_350ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "mit_Zelle_400ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+        if ii == "mit_Zelle_500ms_"+str(nn)+".DAT":
+            seconds_since_start[nn] = time(ii) - stat_t
+
 # reads all mesurements with cell and different times:
 filenames = os.listdir('Daten')
 
@@ -228,6 +268,20 @@ for key in idiffnew:
 
 # plot plot plot :)
 
+
+specialtime = seconds_since_start[1]
+plt.plot(wavelen, i_logdiff["1"], "-", color="red",
+         label="measurement")
+plt.plot(wavelen, fit_SC["1"][0]*nfinalcross, "-", color="blue",
+         label="scaled NO2 reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
+plt.title("Seconds since start: 0s")
+plt.show
+plt.savefig("cell_time_0s.pdf")
+
+specialtime = seconds_since_start[5]
 plt.plot(wavelen, i_logdiff["5"], "-", color="red",
          label="measurement")
 plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, "-", color="blue",
@@ -235,51 +289,25 @@ plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, "-", color="blue",
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("differential optical depth")
 plt.legend()
-plt.title("time since start: ")
+plt.title("Seconds since start: 471s")
 plt.show
+plt.savefig("cell_time_471s.pdf")
+
+specialtime = seconds_since_start[59]
+plt.plot(wavelen, i_logdiff["59"], "-", color="red",
+         label="measurement")
+plt.plot(wavelen, fit_SC["59"][0]*nfinalcross, "-", color="blue",
+         label="scaled NO2 reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
+plt.title("Seconds since start: 5786s")
+plt.show
+plt.savefig("cell_time_5786s.pdf")
 
 
 # calculate the concentration of NO2 in the cell
 
-
-# reads the time
-filenames = os.listdir('Daten')
-
-
-def time(filename):
-    """Calculates the passed time since midnight (00:00:00)
-    Args:
-        filename: path to the file as string
-
-    Returns:
-        sectime: seconds since midnight
-    """
-    f = open("Daten/"+filename, "r")
-    time = f.readlines()[1]  # time is stored in row 2
-    ntime = time.split(" ")
-    mtime = ntime[3].split(":")
-    sectime = 3600*int(mtime[0]) + 60*int(mtime[1]) + int(mtime[2])
-    f.close()
-    return sectime
-
-
-# start time in seconds since midnigth
-stat_t = time("mit_Zelle_500ms_1.DAT")
-
-# time since the first measurement
-seconds_since_start = {}
-for ii in filenames:
-    for nn in range(1, 60):
-        if ii == "mit_Zelle_200ms_"+str(nn)+".DAT":
-            seconds_since_start[nn] = time(ii) - stat_t
-        if ii == "mit_Zelle_300ms_"+str(nn)+".DAT":
-            seconds_since_start[nn] = time(ii) - stat_t
-        if ii == "mit_Zelle_350ms_"+str(nn)+".DAT":
-            seconds_since_start[nn] = time(ii) - stat_t
-        if ii == "mit_Zelle_400ms_"+str(nn)+".DAT":
-            seconds_since_start[nn] = time(ii) - stat_t
-        if ii == "mit_Zelle_500ms_"+str(nn)+".DAT":
-            seconds_since_start[nn] = time(ii) - stat_t
 
 SClist = []
 timelist = []
