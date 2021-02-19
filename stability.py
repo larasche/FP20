@@ -216,5 +216,14 @@ for key in seconds_since_start:
             timelist.append(seconds_since_start[key])
             SClist.append(float(fit_SC[key2][0]))
 
-plt.plot(timelist, SClist, ".")
+cell_length = float(10)
+concentration = []
+for ii in range(0, len(SClist)):
+    concentration.append(SClist[ii]/cell_length)
+
+plt.plot(timelist, concentration, ".")
+plt.xlabel("Seconds since first measurement")
+plt.ylabel("Concentration [molec/cm³]")
+plt.title("Stability of measurement")
+plt.savefig("stability.pdf")
 plt.show()

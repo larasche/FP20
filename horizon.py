@@ -23,8 +23,7 @@ NO2cross = np.loadtxt("Daten/NO2_DiffXSection.dat", skiprows=6)
 
 idark500 = np.loadtxt("Daten/abgedunkelt_500ms.DAT", skiprows=17)
 idark200 = np.loadtxt("Daten/abgedunkelt_200ms.DAT", skiprows=17)
-idark300 = np.loadtxt("Daten/abgedunkelt_300ms.DAT", skiprows=17)
-idark150 = idark300/2
+
 
 # reads the angular measurements
 filenames = os.listdir('Daten')
@@ -109,7 +108,6 @@ for key in i_log:
             i_logdiff[key] = i_log[key] - poly[key2]
 
 
-
 # interpolate the differential cross section to the measurement wavelengths
 waveair = NO2cross[:, 0]
 diffNO2 = NO2cross[:, 1]
@@ -120,7 +118,6 @@ intercross = interp1d(waveair, diffNO2)  # interpolates the FUNKTION intercross
 finalcross = intercross(wavelen)  # finalcross = cross section for the right wavelength
 
 nfinalcross = np.reshape(finalcross, (367, 1))
-
 
 
 idiffnew = {}
@@ -137,9 +134,17 @@ for key in idiffnew:
             fit_SC[key] = nl.lstsq(nfinalcross, idiffnew[key])
 
 
-plt.plot(wavelen, i_logdiff["5"], "-", color="red")
-plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, ".", color="blue")
+plt.plot(wavelen, i_logdiff["5"], "-", color="red",
+         label="measurement")
+plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, "-", color="blue",
+         label="scaled NO2 reference")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("differential optical depth")
+plt.legend()
+plt.title("Measurement with an angel of 5°")
 plt.show
+plt.savefig("angel5.pdf")
+
 
 SC = []
 angel = []
@@ -149,4 +154,8 @@ for key in fit_SC:
 
 
 plt.plot(angel, SC, ".")
+plt.xlabel("Angel in [°]")
+plt.ylabel("Slant column [molec/cm²]")
+plt.title("Horizon measurement of NO2")
+plt.savefig("horizon.pdf")
 plt.show()
