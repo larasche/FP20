@@ -26,6 +26,7 @@ idark200 = np.loadtxt("Daten/abgedunkelt_200ms.DAT", skiprows=17)
 
 
 # reads the angular measurements
+
 filenames = os.listdir('Daten')
 
 i_measurements = {}
@@ -36,6 +37,7 @@ for ii in filenames:
 
 I0_measurement = np.loadtxt("Daten/Spektrum_90grad.DAT", skiprows=17)
 
+
 # substract the dark measurements
 i_darkcorrected = {}
 for key in i_measurements:
@@ -45,7 +47,9 @@ for key in i_measurements:
 
 i0_darkcorrected = I0_measurement[:, 1] - idark200[:, 1]
 
+
 # apply wavelength calibration
+
 a0 = float(429.494)
 a1 = float(93.112)
 a2 = float(-6.050)
@@ -61,13 +65,14 @@ wavelenscale = wave(idark500[:, 0])
 
 
 # choose the fitting window: 432.5-465nm
+
 wavemin = abs(wavelenscale - 432.5).argmin()
 wavemax = abs(wavelenscale - 465).argmin()
 wavelen = wavelenscale[wavemin: wavemax]
 
 
 # aplly the fitting window to the measurements
-# alternative (without the string like "ohne_Zelle_200ms_")
+
 i_ready = {}
 
 for key in i_darkcorrected:
@@ -84,7 +89,6 @@ i_log = {}
 
 for key in i_ready:
     i_log[key] = np.log(i0_ready/i_ready[key])
-
 
 
 def polynom3(a0, a1, a2, a3, x):
@@ -109,13 +113,16 @@ for key in i_log:
 
 
 # interpolate the differential cross section to the measurement wavelengths
+
 waveair = NO2cross[:, 0]
 diffNO2 = NO2cross[:, 1]
 intercross = interp1d(waveair, diffNO2)  # interpolates the FUNKTION intercross
 
+
 # fit the cross section to mesurement wavelength (wavelen)
 
-finalcross = intercross(wavelen)  # finalcross = cross section for the right wavelength
+finalcross = intercross(wavelen)
+# finalcross = cross section for the right wavelength
 
 nfinalcross = np.reshape(finalcross, (367, 1))
 
@@ -127,12 +134,16 @@ for key in i_logdiff:
             idiffnew[key] = np.reshape(i_logdiff[key], (367, -1))
 
 
+# fit the cross section to the measurement --> get slant column
+
 fit_SC = {}
 for key in idiffnew:
     for nn in range(0, 60):
         if key == str(nn):
             fit_SC[key] = nl.lstsq(nfinalcross, idiffnew[key])
 
+
+# plot the measurements and the scaled reference
 
 plt.plot(wavelen, i_logdiff["5"], "-", color="red",
          label="measurement")
@@ -146,12 +157,16 @@ plt.show
 plt.savefig("angel5.pdf")
 
 
+# writes angel and SC  in list
+
 SC = []
 angel = []
 for key in fit_SC:
     SC.append(float(fit_SC[key][0]))
     angel.append(int(key))
 
+
+# plot the slant column depending on the angel of measurement
 
 plt.plot(angel, SC, ".")
 plt.xlabel("Angel in [°]")

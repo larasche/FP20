@@ -20,6 +20,7 @@ NO2cross = np.loadtxt("Daten/NO2_DiffXSection.dat", skiprows=6)
 
 
 # reads the dark measurement in an array
+
 idark200 = np.loadtxt("Daten/abgedunkelt_200ms.DAT", skiprows=17)
 idark300 = np.loadtxt("Daten/abgedunkelt_300ms.DAT", skiprows=17)
 idark350 = np.loadtxt("Daten/abgedunkelt_350ms.DAT", skiprows=17)
@@ -28,6 +29,7 @@ idark500 = np.loadtxt("Daten/abgedunkelt_500ms.DAT", skiprows=17)
 
 
 # reads the time
+
 filenames = os.listdir('Daten')
 
 
@@ -214,6 +216,7 @@ for key in i_ready:
 
 
 # fit a polynomial of order 3 to i_log
+
 def polynom3(a0, a1, a2, a3, x):
     """"calculates the polynom of order 3"""
     aa = a0*x**3 + a1*x**2 + a2*x + a3
@@ -236,6 +239,7 @@ for key in i_log:
 
 
 # interpolate the differential cross section to the measurement wavelengths
+
 waveair = NO2cross[:, 0]
 diffNO2 = NO2cross[:, 1]
 intercross = interp1d(waveair, diffNO2)  # interpolates the FUNKTION intercross
@@ -247,9 +251,7 @@ finalcross = intercross(wavelen)  # finalcross = cross section for the right wav
 nfinalcross = np.reshape(finalcross, (367, 1))
 
 
-# ##########################(this is possible right)#####################
-
-# also a new try because i'm stupid (row, column)
+# reshape the data
 
 idiffnew = {}
 for key in i_logdiff:
@@ -257,7 +259,8 @@ for key in i_logdiff:
         if key == str(nn):
             idiffnew[key] = np.reshape(i_logdiff[key], (367, -1))
 
-test = nl.lstsq(nfinalcross, idiffnew["5"])
+
+# fit the cross section to the measurement --> get slant column
 
 fit_SC = {}
 for key in idiffnew:
@@ -266,7 +269,7 @@ for key in idiffnew:
             fit_SC[key] = nl.lstsq(nfinalcross, idiffnew[key])
 
 
-# plot plot plot :)
+# plot plot plot :) (measurement ans scaled NO2 reference depending on wavelen)
 
 
 specialtime = seconds_since_start[1]
@@ -306,8 +309,7 @@ plt.show
 plt.savefig("cell_time_5786s.pdf")
 
 
-# calculate the concentration of NO2 in the cell
-
+# writes slant column and time in lists (for the plot)
 
 SClist = []
 timelist = []
@@ -317,11 +319,16 @@ for key in seconds_since_start:
             timelist.append(seconds_since_start[key])
             SClist.append(float(fit_SC[key2][0]))
 
+
+# calculate the concentration of NO2 in the cell
+
 cell_length = float(10)
 concentration = []
 for ii in range(0, len(SClist)):
     concentration.append(SClist[ii]/cell_length)
 
+
+# plot the concentration depending on seconds since first measurement
 
 plt.plot(timelist, concentration, ".")
 plt.xlabel("seconds since first measurement")

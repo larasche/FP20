@@ -86,9 +86,15 @@ for key in intercross:
 
 idiffnew = np.reshape(i_logdiff, (210, -1))
 
+
+# fit the cross section to the measurement --> get slant column
+
 fit_SC = {}
 for key in nfinalcross:
     fit_SC[key] = nl.lstsq(nfinalcross[key], idiffnew)
+
+
+# plot the measurements and the scaled reference
 
 plt.plot(wavelen, i_logdiff, "-", color="red", label="measurement")
 plt.plot(wavelen, fit_SC["O3"][0]*nfinalcross["O3"], "-", color="blue",
@@ -122,7 +128,9 @@ plt.savefig("HCHOfit.pdf")
 print("Error fit HCHO:", fit_SC["HCHO"][1])
 
 
-# calculate the vertical column
+# calculate the vertical column:
+
+
 SC = float(fit_SC["O3"][0])
 
 # calculate the difference between the AMF at 20 and 80 degree:

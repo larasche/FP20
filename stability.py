@@ -77,6 +77,7 @@ for key in i_withoutcell:
 i0_darkcorrected = i0[:, 1] - idark500[:, 1]
 
 # apply wavelength calibration
+
 a0 = float(429.494)
 a1 = float(93.112)
 a2 = float(-6.050)
@@ -90,7 +91,9 @@ def wave(ii):
 
 wavelenscale = wave(idark200[:, 0])
 
+
 # choose the fitting window: 432.5-465nm
+
 wavemin = abs(wavelenscale - 432.5).argmin()
 wavemax = abs(wavelenscale - 465).argmin()
 wavelen = wavelenscale[wavemin: wavemax]
@@ -160,11 +163,16 @@ for key in i_logdiff:
             idiffnew[key] = np.reshape(i_logdiff[key], (367, -1))
 
 
+# fit the cross section to the measurement --> get slant column
+
 fit_SC = {}
 for key in idiffnew:
     for nn in range(0, 60):
         if key == str(nn):
             fit_SC[key] = nl.lstsq(nfinalcross, idiffnew[key])
+
+
+# plot the measurements and the scaled reference
 
 plt.plot(wavelen, i_logdiff["5"], "-", color="red")
 plt.plot(wavelen, fit_SC["5"][0]*nfinalcross, ".", color="blue")
@@ -190,10 +198,14 @@ def time(filename):
     f.close()
     return sectime
 
+
 # start time in seconds since midnigth
+
 stat_t = time("mit_Zelle_500ms_1.DAT")
 
+
 # time since the first measurement
+
 seconds_since_start = {}
 for ii in filenames:
     for nn in range(1, 60):
@@ -208,6 +220,9 @@ for ii in filenames:
         if ii == "ohne_Zelle_500ms_"+str(nn)+".DAT":
             seconds_since_start[nn] = time(ii) - stat_t
 
+
+# slant column and time as list
+
 SClist = []
 timelist = []
 for key in seconds_since_start:
@@ -216,10 +231,16 @@ for key in seconds_since_start:
             timelist.append(seconds_since_start[key])
             SClist.append(float(fit_SC[key2][0]))
 
+
+# calculates the concentration
+
 cell_length = float(10)
 concentration = []
 for ii in range(0, len(SClist)):
     concentration.append(SClist[ii]/cell_length)
+
+
+# plot the concentration depending on time
 
 plt.plot(timelist, concentration, ".")
 plt.xlabel("Seconds since first measurement")
